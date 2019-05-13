@@ -10,13 +10,11 @@
 01. Web Server - HTTP Protocol
 02. Web Server - Asynchronous Processing
 03. Web Server - State Management
-04. Web Server - Databases EF Core
-05. Web Application. Advanced CSS - Bootstrap
-06. Web Application - Data Visualisation
-07. Introduction to MVC. Creating Application Server
-08. Creating Simple MVC Framework
-09. MVC Advanced - IOC, Data Binding, Auto-Mapping
-10. Extending MVC Framework
+04. Web Application. Advanced CSS - Bootstrap
+05. Working with Data
+06. MVC Introduction
+07. MVC Advnced 
+08. Authentication and Authorization
 
 ## Certificate: 
 none
