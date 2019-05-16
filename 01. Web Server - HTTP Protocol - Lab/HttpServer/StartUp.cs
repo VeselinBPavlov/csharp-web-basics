@@ -22,14 +22,17 @@
                 {
                     byte[] requestBytes = new byte[10000];
                     int readBytes = stream.Read(requestBytes, 0, requestBytes.Length);
-                    string stringRequest = Encoding.UTF8.GetString(requestBytes, 0, readBytes);
+                    string stringRequest = Encoding.UTF8.GetString(requestBytes, 0, readBytes); 
                     Console.WriteLine(new string('=', 70));
                     Console.WriteLine(stringRequest);
 
-                    var sb = new StringBuilder();
-                    sb.AppendLine("HTTP/1.1 200 OK" + NewLine);
+                    string responseBody = "<h1>Hello, User!</h1>";   
+                    var response = "HTTP/1.1 200 OK" + NewLine +
+                                   "Content-Type: text/html" + NewLine +
+                                   "Server: Custom Server/1.0" + NewLine +
+                                   $"Content-Length: {responseBody.Length}" + NewLine + NewLine +
+                                   responseBody;                                                  
 
-                    var response = sb.ToString().TrimEnd();
                     byte[] responseBytes = Encoding.UTF8.GetBytes(response);
                     stream.Write(responseBytes, 0, responseBytes.Length);
                 }
