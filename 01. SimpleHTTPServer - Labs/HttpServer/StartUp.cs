@@ -37,6 +37,8 @@
                 string responseBody = "<h1>Hello, User!</h1>";   
                 var response = "HTTP/1.1 200 OK" + NewLine +
                                "Content-Type: text/html" + NewLine +
+                               "Set-Cookie: cookie-white=white; Security;" + NewLine +
+                               "Set-Cookie: cookie-black=black; Expires=" + DateTime.UtcNow.AddDays(7).ToString("R") + NewLine + // For delete - AddDays(-1)
                                "Server: Custom Server/1.0" + NewLine +
                                $"Content-Length: {responseBody.Length}" + NewLine + NewLine +
                                responseBody;                                                  
