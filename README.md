@@ -10,7 +10,7 @@
 01. Web Server - HTTP Protocol
 02. Web Server - Asynchronous Processing
 03. Web Server - State Management
-04. Web Application. Advanced CSS - Bootstrap05. 
+04. Web Application. Advanced CSS - Bootstrap
 05. MVC Introduction
 06. MVC Advnced Part I
 07. MVC Advnced Part II
