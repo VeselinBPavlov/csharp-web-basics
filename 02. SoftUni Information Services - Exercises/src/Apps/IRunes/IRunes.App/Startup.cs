@@ -1,13 +1,8 @@
-﻿using System;
-using IRunes.App.Controllers;
-using IRunes.Data;
-using SIS.HTTP.Enums;
-using SIS.HTTP.Requests;
-using SIS.HTTP.Responses;
+﻿using IRunes.Data;
+using IRunes.Services;
 using SIS.MvcFramework;
-using SIS.WebServer;
-using SIS.WebServer.Result;
-using SIS.WebServer.Routing;
+using SIS.MvcFramework.DependencyContainer;
+using SIS.MvcFramework.Routing;
 
 namespace IRunes.App
 {
@@ -21,8 +16,11 @@ namespace IRunes.App
             }
         }
 
-        public void ConfigureServices()
+        public void ConfigureServices(IServiceProvider serviceProvider)
         {
+            serviceProvider.Add<IAlbumService, AlbumService>();
+            serviceProvider.Add<ITrackService, TrackService>();
+            serviceProvider.Add<IUserService, UserService>();
         }
     }
 }
