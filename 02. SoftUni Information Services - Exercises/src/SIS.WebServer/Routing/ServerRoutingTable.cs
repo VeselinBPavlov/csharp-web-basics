@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using SIS.HTTP.Common;
 using SIS.HTTP.Enums;
-using SIS.HTTP.Requests.Contracts;
-using SIS.HTTP.Responses.Contracts;
-using SIS.WebServer.Routing.Contracts;
+using SIS.HTTP.Requests;
+using SIS.HTTP.Responses;
 
 namespace SIS.WebServer.Routing
 {
     public class ServerRoutingTable : IServerRoutingTable
     {
-        private Dictionary<HttpRequestMethod, Dictionary<string, Func<IHttpRequest, IHttpResponse>>> routingTable;
+        private readonly Dictionary<HttpRequestMethod, Dictionary<string, Func<IHttpRequest, IHttpResponse>>> routingTable;
+
         public ServerRoutingTable()
         {
             this.routingTable = new Dictionary<HttpRequestMethod, Dictionary<string, Func<IHttpRequest, IHttpResponse>>>

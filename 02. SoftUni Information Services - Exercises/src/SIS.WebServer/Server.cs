@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using SIS.HTTP.Common;
-using SIS.WebServer.Routing.Contracts;
+using SIS.WebServer.Routing;
 
 namespace SIS.WebServer
 {
@@ -44,10 +44,7 @@ namespace SIS.WebServer
 
             while (this.isRunning)
             {
-                Console.WriteLine("Waiting for client...");
-
                 var client = this.tcpListener.AcceptSocketAsync().GetAwaiter().GetResult();
-
                 Task.Run(() => this.ListenAsync(client));
             }
         }
