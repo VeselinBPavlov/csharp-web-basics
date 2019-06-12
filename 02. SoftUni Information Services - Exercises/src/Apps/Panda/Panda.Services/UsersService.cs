@@ -1,49 +1,48 @@
-﻿namespace Panda.Services
-{
-    using Data;
-    using Models;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Cryptography;
-    using System.Text;
+﻿using Panda.Data;
+using Panda.Data.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
+namespace Panda.Services
+{
     public class UsersService : IUsersService
     {
-        private readonly PandaDbContext context;
+        private readonly PandaDbContext db;
 
-        public UsersService(PandaDbContext context)
+        public UsersService(PandaDbContext db)
         {
-            this.context = context;
+            this.db = db;
         }
 
         public string CreateUser(string username, string email, string password)
         {
+            // TODO: Check if user with the same username exists
             var user = new User
             {
                 Username = username,
                 Email = email,
-                Password = HashPassword(password)
+                Password = this.HashPassword(password),
             };
-
-            this.context.Users.Add(user);
-            this.context.SaveChanges();
-
+            this.db.Users.Add(user);
+            this.db.SaveChanges();
             return user.Id;
         }
 
         public IEnumerable<string> GetUsernames()
         {
-            var users = this.context.Users.Select(x => x.Username).ToList();
-
-            return users;
+            var usernames = this.db.Users.Select(x => x.Username).ToList();
+            return usernames;
         }
 
         public User GetUserOrNull(string username, string password)
         {
             var passwordHash = this.HashPassword(password);
-
-            var user = this.context.Users.FirstOrDefault(x => x.Username == username && x.Password == passwordHash);
-
+            var user = this.db.Users.FirstOrDefault(
+                x => x.Username == username
+                && x.Password == passwordHash);
             return user;
         }
 
