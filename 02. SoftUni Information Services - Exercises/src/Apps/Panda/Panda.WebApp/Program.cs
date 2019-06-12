@@ -1,12 +1,12 @@
-﻿using System;
-
-namespace Panda.WebApp
+﻿namespace Panda.WebApp
 {
-    class Program
+    using SIS.MvcFramework;
+
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            WebHost.Start(new Startup());
         }
     }
 }
