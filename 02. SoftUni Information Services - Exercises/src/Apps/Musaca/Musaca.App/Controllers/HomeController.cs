@@ -1,11 +1,11 @@
-﻿using Musaca.App.ViewModels.Orders;
-using Musaca.App.ViewModels.Products;
-using Musaca.Models;
+﻿using Musaca.App.ViewModels.Home;
+using Musaca.Models.Enums;
 using Musaca.Services;
 using SIS.MvcFramework;
 using SIS.MvcFramework.Attributes;
-using SIS.MvcFramework.Mapping;
 using SIS.MvcFramework.Result;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Musaca.App.Controllers
 {
@@ -17,36 +17,27 @@ namespace Musaca.App.Controllers
         {
             this.orderService = orderService;
         }
-
         [HttpGet(Url = "/")]
         public IActionResult IndexSlash()
         {
-            return this.Index();
+            return Index();
         }
 
         public IActionResult Index()
         {
-            OrderHomeViewModel orderHomeViewModel = new OrderHomeViewModel();
-            
-            if (this.IsLoggedIn())
+            var products = new List<HomeProductsModel>();
+            if (IsLoggedIn())
             {
-                Order order = this.orderService
-                    .GetCurrentActiveOrderByCashierId(this.User.Id);
+                var order = orderService.GetActiveOrderByUserId(User.Id);
+                products
+                    .AddRange(order.Products
+                    .Select(p => new HomeProductsModel { Name = p.Product.Name, Price = p.Product.Price }));
 
-                orderHomeViewModel = order.To<OrderHomeViewModel>();
-
-                orderHomeViewModel.Products.Clear();
-
-                foreach (var orderProduct in order.Products)
-                {
-                    ProductHomeViewModel productHomeViewModel = orderProduct.Product.To<ProductHomeViewModel>();
-
-                    orderHomeViewModel.Products.Add(productHomeViewModel);
-                }
             }
+            return View(products);
 
-            return this.View(orderHomeViewModel);
+
         }
+
     }
 }
-    

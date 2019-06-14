@@ -4,9 +4,10 @@ namespace Musaca.App
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             WebHost.Start(new Startup());
+
         }
     }
 }

@@ -4,8 +4,7 @@ namespace Musaca.Services
 {
     public interface IUserService
     {
-        User CreateUser(User user);
-
-        User GetUserByUsernameAndPassword(string username, string password);
+        string RegisterUser(User user);
+        User LoginUser(string username, string password);
     }
 }

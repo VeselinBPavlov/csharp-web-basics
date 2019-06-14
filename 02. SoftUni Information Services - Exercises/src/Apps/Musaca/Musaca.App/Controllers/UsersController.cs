@@ -1,24 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using Musaca.App.ViewModels.Orders;
-using Musaca.Models;
+﻿using Musaca.Models;
 using Musaca.Services;
 using SIS.MvcFramework;
 using SIS.MvcFramework.Attributes;
-using SIS.MvcFramework.Attributes.Action;
-using SIS.MvcFramework.Mapping;
 using SIS.MvcFramework.Result;
 
 namespace Musaca.App.Controllers
 {
-    using BindingModels.Users;
+    using Musaca.App.ViewModels.Users;
+    using SIS.MvcFramework.Attributes.Security;
+    using System.Linq;
 
     public class UsersController : Controller
     {
         private readonly IUserService userService;
-
         private readonly IOrderService orderService;
 
         public UsersController(IUserService userService, IOrderService orderService)
@@ -29,91 +23,73 @@ namespace Musaca.App.Controllers
 
         public IActionResult Login()
         {
-            return this.View();
+            return View();
         }
 
         [HttpPost]
-        public IActionResult Login(UserLoginBindingModel model)
+        public IActionResult Login(UserLoginModel model)
         {
-            User userFromDb = this.userService.GetUserByUsernameAndPassword(model.Username, this.HashPassword(model.Password));
+            User userFromDb = userService.LoginUser(model.Username, model.Password);
 
             if (userFromDb == null)
             {
-                return this.Redirect("/Users/Login");
+                return Redirect("/Users/Login");
             }
 
-            this.SignIn(userFromDb.Id, userFromDb.Username, userFromDb.Email);
+            SignIn(userFromDb.Id, userFromDb.Username, userFromDb.Email);
 
-            return this.Redirect("/");
+            return Redirect("/");
         }
 
         public IActionResult Register()
         {
-            return this.View();
+            return View();
         }
 
         [HttpPost]
-        public IActionResult Register(UserRegisterBindingModel model)
+        public IActionResult Register(UserRegisterModel model)
         {
-            if (!this.ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return this.Redirect("/Users/Register");
+                return Redirect("/Users/Register");
             }
 
             if (model.Password != model.ConfirmPassword)
             {
-                return this.Redirect("/Users/Register");
+                return Redirect("/Users/Register");
             }
 
             User user = new User
             {
                 Username = model.Username,
-                Password = this.HashPassword(model.Password),
+                Password = model.Password,
                 Email = model.Email
             };
 
-            this.userService.CreateUser(user);
-            this.orderService.CreateOrder(new Order {CashierId = user.Id});
-
-            return this.Redirect("/Users/Login");
+            var userId = userService.RegisterUser(user);
+            SignIn(userId, model.Username, model.Email);
+            return Redirect("/");
         }
-
-        public IActionResult Profile()
-        {
-            UserProfileViewModel userProfileViewModel = new UserProfileViewModel();
-            List<Order> ordersFromDb = this.orderService.GetAllCompletedOrdersByCashierId(this.User.Id);
-
-            userProfileViewModel.Orders = ordersFromDb 
-                .To<OrderProfileViewModel>()
-                .ToList();
-
-            foreach (var order in userProfileViewModel.Orders)
-            {
-                order.CashierName = this.User.Username;
-                order.Total = ordersFromDb.Where(orderF => orderF.Id == order.Id)
-                    .SelectMany(orderF => orderF.Products)
-                    .Sum(pr => pr.Product.Price).ToString();
-                order.IssuedOnDate = ordersFromDb.SingleOrDefault(orderF => orderF.Id == order.Id).IssuedOn
-                    .ToString("dd/MM/yyyy");
-            }
-
-            return this.View(userProfileViewModel);
-        }
-
+        [Authorize]
         public IActionResult Logout()
         {
-            this.SignOut();
+            SignOut();
 
-            return this.Redirect("/");
+            return Redirect("/");
         }
-
-        [NonAction]
-        private string HashPassword(string password)
+        [Authorize]
+        public IActionResult Profile()
         {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                return Encoding.UTF8.GetString(sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password)));
-            }
+            var orders = orderService.GetCompletedOrders(User.Id)
+                .Select(o => new UserProfileModel
+                {
+                    Id = o.Id,
+                    CashierName = o.Cashier.Username,
+                    IssuedOn = o.IssuedOn.ToString(@"dd/MM/yyyy"),
+                    Total = o.Products.Sum(p => p.Product.Price)
+                }).ToList(); ;
+            return View(orders);
         }
+
     }
 }

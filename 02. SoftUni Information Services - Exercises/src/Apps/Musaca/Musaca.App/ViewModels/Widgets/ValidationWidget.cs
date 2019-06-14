@@ -1,4 +1,4 @@
-﻿namespace Musaca.App.ViewModels.Widgets
+﻿namespace IRunes.App.ViewModels.Widgets
 {
     using SIS.MvcFramework.ViewEngine;
 

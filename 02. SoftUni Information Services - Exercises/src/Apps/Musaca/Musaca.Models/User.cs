@@ -1,13 +1,18 @@
-﻿namespace Musaca.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Musaca.Models
 {
     public class User
     {
+     
         public string Id { get; set; }
-
+        [Required]
+        [MaxLength(20)]
         public string Username { get; set; }
-
-        public string Password { get; set; }
-
+        [Required]
+        [MaxLength(20)]
         public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

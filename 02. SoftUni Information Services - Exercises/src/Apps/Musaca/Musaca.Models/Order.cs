@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Musaca.Models.Enums;
+using System;
 using System.Collections.Generic;
-using Musaca.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Musaca.Models
 {
@@ -8,19 +9,16 @@ namespace Musaca.Models
     {
         public Order()
         {
-            this.Products = new List<OrderProduct>();
+            Products = new HashSet<OrderProduct>();
         }
 
         public string Id { get; set; }
-
-        public OrderStatus Status { get; set; } = OrderStatus.Active;
-
+        public OrderStatus Status { get; set; }
         public DateTime IssuedOn { get; set; }
-
+        public ICollection<OrderProduct> Products { get; set; }
+        [Required]
         public string CashierId { get; set; }
-
         public User Cashier { get; set; }
 
-        public List<OrderProduct> Products { get; set; }
     }
 }

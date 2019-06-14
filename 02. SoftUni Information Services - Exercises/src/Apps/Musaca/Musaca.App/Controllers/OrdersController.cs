@@ -1,7 +1,7 @@
-﻿using Musaca.Models;
+﻿using Musaca.Models.Enums;
 using Musaca.Services;
 using SIS.MvcFramework;
-using SIS.MvcFramework.Attributes;
+using SIS.MvcFramework.Attributes.Security;
 using SIS.MvcFramework.Result;
 
 namespace Musaca.App.Controllers
@@ -14,15 +14,15 @@ namespace Musaca.App.Controllers
         {
             this.orderService = orderService;
         }
-
-        [HttpGet]
-        public IActionResult Cashout()
+        [Authorize]
+        public IActionResult Cashout(string userId)
         {
-            Order currentActiveOrder = this.orderService.GetCurrentActiveOrderByCashierId(this.User.Id);
-
-            this.orderService.CompleteOrder(currentActiveOrder.Id, this.User.Id);
-
-            return this.Redirect("/");
+            var order = orderService.GetActiveOrderByUserId(userId);
+            if (order != null)
+            {
+                orderService.CashoutOrder(order.Id);
+            }
+            return Redirect("/");
         }
     }
 }

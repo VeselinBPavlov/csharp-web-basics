@@ -10,9 +10,9 @@ namespace Musaca.App
     {
         public void Configure(IServerRoutingTable serverRoutingTable)
         {
-            using (var context = new MusacaDbContext())
+            using (var dbConext = new MusacaDbContext())
             {
-                context.Database.EnsureCreated();
+                dbConext.Database.EnsureCreated();
             }
         }
 
@@ -22,5 +22,6 @@ namespace Musaca.App
             serviceProvider.Add<IProductService, ProductService>();
             serviceProvider.Add<IOrderService, OrderService>();
         }
+
     }
 }

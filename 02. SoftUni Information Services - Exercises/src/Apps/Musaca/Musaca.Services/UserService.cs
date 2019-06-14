@@ -1,30 +1,52 @@
-﻿using System.Linq;
-using Musaca.Data;
+﻿using Musaca.Data;
 using Musaca.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Musaca.Services
 {
     public class UserService : IUserService
     {
-        private readonly MusacaDbContext context;
+        private readonly MusacaDbContext db;
+        private readonly IOrderService orderService;
 
-        public UserService(MusacaDbContext musacaDbContext)
+        public UserService(MusacaDbContext db, IOrderService orderService)
         {
-            this.context = musacaDbContext;
+            this.db = db;
+            this.orderService = orderService;
         }
 
-        public User CreateUser(User user)
+        public string RegisterUser(User user)
         {
-            user = this.context.Users.Add(user).Entity;
-            this.context.SaveChanges();
+            user.Password = HashPassword(user.Password);
+            user = db.Users.Add(user).Entity;
+            db.SaveChanges();
+            orderService.CreateOrder(user.Id);
+          
 
+            return user.Id;
+
+
+        }
+
+        public User LoginUser(string username, string password)
+        {
+            var user = db.Users
+                .SingleOrDefault(u => u.Username == username && u.Password == HashPassword(password));
             return user;
         }
 
-        public User GetUserByUsernameAndPassword(string username, string password)
+        private string HashPassword(string password)
         {
-            return this.context.Users.SingleOrDefault(user => (user.Username == username || user.Email == username)
-                                                              && user.Password == password);
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                return Encoding.UTF8.GetString(sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            }
         }
+
+   
     }
+
+
 }

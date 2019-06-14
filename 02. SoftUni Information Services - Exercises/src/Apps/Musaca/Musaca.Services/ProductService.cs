@@ -1,31 +1,34 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Musaca.Data;
+﻿using Musaca.Data;
 using Musaca.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Musaca.Services
 {
     public class ProductService : IProductService
     {
-        private readonly MusacaDbContext context;
+        private readonly MusacaDbContext dbContext;
 
-        public ProductService(MusacaDbContext musacaDbContext)
+        public ProductService(MusacaDbContext dbContext)
         {
-            this.context = musacaDbContext;
+            this.dbContext = dbContext;
         }
-
-        public Product CreateProduct(Product product)
+        public void CreateProduct(Product product)
         {
-            this.context.Add(product);
-            this.context.SaveChanges();
-
+            dbContext.Products.Add(product);
+            dbContext.SaveChanges();
+        }
+        public List<Product> GetAll()
+        {
+            var products = dbContext.Products.ToList();
+            return products;
+        }
+        public Product GetByName(string name)
+        {
+            var product = dbContext.Products.SingleOrDefault(p => p.Name == name);
             return product;
         }
-
-        public Product GetByName(string name)
-            => this.context.Products.SingleOrDefault(product => product.Name == name);
-
-        public List<Product> GetAll()
-            => this.context.Products.ToList();
     }
 }

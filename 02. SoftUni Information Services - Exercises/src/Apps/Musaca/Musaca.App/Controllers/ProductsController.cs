@@ -1,12 +1,10 @@
-﻿using Musaca.Services;
+﻿using Musaca.App.ViewModels.Products;
+using Musaca.Models;
+using Musaca.Services;
 using SIS.MvcFramework;
 using SIS.MvcFramework.Attributes;
-using SIS.MvcFramework.Result;
-using SIS.MvcFramework.Mapping;
-using Musaca.App.ViewModels.Products;
-using Musaca.App.BindingModels.Products;
-using Musaca.Models;
 using SIS.MvcFramework.Attributes.Security;
+using SIS.MvcFramework.Result;
 using System.Linq;
 
 namespace Musaca.App.Controllers
@@ -14,7 +12,6 @@ namespace Musaca.App.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductService productService;
-
         private readonly IOrderService orderService;
 
         public ProductsController(IProductService productService, IOrderService orderService)
@@ -22,44 +19,46 @@ namespace Musaca.App.Controllers
             this.productService = productService;
             this.orderService = orderService;
         }
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult All()
-        {
-            return this.View(this.productService.GetAll().To<ProductAllViewModel>().ToList());
-        }
-
-        [HttpGet]
         [Authorize]
         public IActionResult Create()
         {
-            return this.View();
+            return View();
         }
-
-        [HttpPost]
         [Authorize]
-        public IActionResult Create(ProductCreateBindingModel productCreateBindingModel)
-        {
-            if(!this.ModelState.IsValid)
-            {
-                // TODO: SAVE FORM RESULT
-                return this.View();
-            }
-
-            this.productService.CreateProduct(productCreateBindingModel.To<Product>());
-
-            return this.Redirect("All");
-        }
-
         [HttpPost]
-        public IActionResult Order(ProductOrderBindingModel productOrderBindingModel)
+        public IActionResult Create(ProductCreateModel model)
         {
-            Product productToOrder = this.productService.GetByName(productOrderBindingModel.Product);
-
-            this.orderService.AddProductToCurrentActiveOrder(productToOrder.Id, this.User.Id);
-
-            return this.Redirect("/");
+            if (!ModelState.IsValid)
+            {
+                return Redirect("/Products/Create");
+            }
+            var product = new Product() { Name = model.Name, Price = model.Price };
+            productService.CreateProduct(product);
+            return Redirect("/Products/All");
+        }
+        [Authorize]
+        public IActionResult All()
+        {
+            var products = productService
+                .GetAll()
+                .Select(p => new ProductAllModel { Name = p.Name, Price = p.Price })
+                .ToList();
+            return View(products);
+        }
+        [Authorize]
+        [HttpPost]
+        public IActionResult Order(ProductOrderModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Redirect("/");
+            }
+            var product = productService.GetByName(model.Name);
+            if (product != null)
+            {
+                orderService.AddProduct(product, User.Id);
+            }
+            return Redirect("/");
         }
     }
 }

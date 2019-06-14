@@ -1,75 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Musaca.Data;
 using Musaca.Models;
 using Musaca.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Musaca.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly MusacaDbContext context;
+        private readonly MusacaDbContext dbContext;
 
-        public OrderService(MusacaDbContext musacaDbContext)
+        public OrderService(MusacaDbContext dbContext)
         {
-            this.context = musacaDbContext;
+            this.dbContext = dbContext;
         }
 
-        public bool AddProductToCurrentActiveOrder(string productId, string userId)
+
+        public void CreateOrder(string userId)
         {
-            Product productFromDb = this.context.Products.SingleOrDefault(product => product.Id == productId);
+            var order = new Order() { CashierId = userId, IssuedOn = DateTime.Now, Status = OrderStatus.Active };
+            dbContext.Orders.Add(order);
+            dbContext.SaveChanges();
 
-            Order currentActiveOrder = this.GetCurrentActiveOrderByCashierId(userId);
-            currentActiveOrder.Products.Add(new OrderProduct
-            {
-                Product = productFromDb
-            });
-
-            this.context.Update(currentActiveOrder);
-            this.context.SaveChanges();
-
-            return true;
         }
-
-        public Order CreateOrder(Order order)
+        public void AddProduct(Product product, string userId)
         {
-            this.context.Add(order);
-            this.context.SaveChanges();
+            var order = dbContext.Orders
+                .SingleOrDefault(o => o.CashierId == userId && o.Status == OrderStatus.Active);
+            order.Products.Add(new OrderProduct() { OrderId = order.Id, ProductId = product.Id });
+            dbContext.SaveChanges();
+        }
+        public Order GetActiveOrderByUserId(string userId)
+        {
+            var order = dbContext.Orders
+                .Include(o => o.Products)
+                .ThenInclude(orderProduct => orderProduct.Product)
+                .SingleOrDefault(o => o.CashierId == userId && o.Status == OrderStatus.Active);
 
             return order;
         }
-
-        public Order CompleteOrder(string orderId, string userId)
+        public List<Order> GetCompletedOrders(string userId)
         {
-            Order orderFromDb = this.context.Orders.SingleOrDefault(order => order.Id == orderId);
-
-            orderFromDb.IssuedOn = DateTime.UtcNow;
-            orderFromDb.Status = OrderStatus.Completed;
-
-            this.context.Update(orderFromDb);
-            this.context.SaveChanges();
-
-            this.CreateOrder(new Order {CashierId = userId});
-
-            return orderFromDb;
-        }
-
-        public List<Order> GetAllCompletedOrdersByCashierId(string userId)
-            => this.context.Orders
-                .Include(order => order.Products)
-                .ThenInclude(orderProduct => orderProduct.Product)
-                .Include(order => order.Cashier)
-                .Where(order => order.CashierId == userId)
-                .Where(order => order.Status == OrderStatus.Completed)
+            var orders = dbContext.Orders.Where(o => o.Status == OrderStatus.Completed && o.CashierId == userId)
+                .Include(o => o.Cashier)
+                .Include(o => o.Products)
+                .ThenInclude(op => op.Product)
                 .ToList();
-
-        public Order GetCurrentActiveOrderByCashierId(string userId)
-            => this.context.Orders
-                .Include(order => order.Products)
-                .ThenInclude(orderProduct => orderProduct.Product)
-                .Include(order => order.Cashier)
-                .SingleOrDefault(order => order.CashierId == userId && order.Status == OrderStatus.Active);
+            return orders;
+        }
+        public void CashoutOrder(string orderId)
+        {
+            var order = dbContext.Orders.Find(orderId);
+            var userId = order.CashierId;
+            order.Status = OrderStatus.Completed;
+            dbContext.SaveChanges();
+            CreateOrder(userId);
+        }
     }
 }
