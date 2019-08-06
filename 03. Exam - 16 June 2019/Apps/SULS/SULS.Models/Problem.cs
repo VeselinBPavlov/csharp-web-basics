@@ -7,7 +7,7 @@ namespace SULS.Models
     {
         public Problem()
         {
-            this.Submissions = new HashSet<Submition>();
+            this.Submissions = new HashSet<Submission>();
         }
 
         [Key]
@@ -23,6 +23,6 @@ namespace SULS.Models
 
         public User User { get; set; }
 
-        public virtual ICollection<Submition> Submissions { get; set; }
+        public virtual ICollection<Submission> Submissions { get; set; }
     }
 }

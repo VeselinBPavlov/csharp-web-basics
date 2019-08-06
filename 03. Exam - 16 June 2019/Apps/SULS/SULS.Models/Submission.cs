@@ -2,7 +2,7 @@ using System;
 
 namespace SULS.Models
 {
-    public class Submition
+    public class Submission
     {
         public string Id { get; set; }
 
@@ -21,10 +21,3 @@ namespace SULS.Models
         public virtual User User { get; set; }
     }
 }
-
-    // • Has an Id – a string, Primary Key
-    // • Has Code – a string with min length 30 and max length 800 (required)
-    // • Has Achieved Result – an integer between 0 and 300 (required)
-    // • Has a Created On – a DateTime object (required)
-    // • Has Problem – a Problem object
-    // • Has User – a User object

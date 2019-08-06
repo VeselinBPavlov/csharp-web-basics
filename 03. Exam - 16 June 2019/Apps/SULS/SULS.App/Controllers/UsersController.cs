@@ -57,9 +57,9 @@ namespace SULS.App.Controllers
                 return this.Redirect("/Users/Register");
             }
 
-            var userId = this.usersService.CreateUser(input.Username, input.Email, input.Password);
-            this.SignIn(userId, input.Username, input.Email);
-            return this.Redirect("/");
+            this.usersService.CreateUser(input.Username, input.Email, input.Password);
+            
+            return this.Redirect("/Users/Login");
         }
 
         [Authorize]
