@@ -4,6 +4,8 @@
     using SIS.MvcFramework;
     using SIS.MvcFramework.DependencyContainer;
     using SIS.MvcFramework.Routing;
+    using Services;
+    using Services.Interfaces;
 
     public class StartUp : IMvcApplication
     {
@@ -17,6 +19,9 @@
 
         public void ConfigureServices(IServiceProvider serviceProvider)
         { 
+            serviceProvider.Add<IUserService, UserService>();
+            serviceProvider.Add<IProblemService, ProblemService>();
+            serviceProvider.Add<ISubmissionService, SubmissionService>();
         }
     }
 }
